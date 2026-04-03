@@ -90,14 +90,20 @@ fi
 # Download Dedicated Server
 download
 
-# Template configuration file (only if it doesn't already exist)
+# Template configuration file (write if missing or env vars changed)
 CONFIG_DIR="${STEAMAPPDIR}/RSDragonwilds/Saved/Config/LinuxServer"
+CONFIG_FILE="${CONFIG_DIR}/DedicatedServer.ini"
 mkdir -p "${CONFIG_DIR}"
-if [[ ! -f "${CONFIG_DIR}/DedicatedServer.ini" ]]; then
-  envsubst < /etc/default/DedicatedServer.ini > "${CONFIG_DIR}/DedicatedServer.ini"
+envsubst < /etc/default/DedicatedServer.ini > "${CONFIG_FILE}.new"
+if [[ ! -f "${CONFIG_FILE}" ]]; then
+  mv "${CONFIG_FILE}.new" "${CONFIG_FILE}"
   echo "Generated DedicatedServer.ini from template"
+elif ! diff -q "${CONFIG_FILE}" "${CONFIG_FILE}.new" > /dev/null 2>&1; then
+  mv "${CONFIG_FILE}.new" "${CONFIG_FILE}"
+  echo "DedicatedServer.ini updated (environment variables changed)"
 else
-  echo "Existing DedicatedServer.ini found, skipping template generation"
+  rm "${CONFIG_FILE}.new"
+  echo "DedicatedServer.ini unchanged, skipping"
 fi
 
 # Switch to server directory
