@@ -90,8 +90,15 @@ fi
 # Download Dedicated Server
 download
 
-# Template configuration file
-envsubst < /etc/default/DedicatedServer.ini > ${STEAMAPPDIR}/RSDragonwilds/Saved/Config/LinuxServer/DedicatedServer.ini
+# Template configuration file (only if it doesn't already exist)
+CONFIG_DIR="${STEAMAPPDIR}/RSDragonwilds/Saved/Config/LinuxServer"
+mkdir -p "${CONFIG_DIR}"
+if [[ ! -f "${CONFIG_DIR}/DedicatedServer.ini" ]]; then
+  envsubst < /etc/default/DedicatedServer.ini > "${CONFIG_DIR}/DedicatedServer.ini"
+  echo "Generated DedicatedServer.ini from template"
+else
+  echo "Existing DedicatedServer.ini found, skipping template generation"
+fi
 
 # Switch to server directory
 cd "${STEAMAPPDIR}/RSDragonwilds/"
